@@ -1,0 +1,15 @@
+project:
+  type: website
+  output-dir: docs
+website:
+ title: "My Portfolio"
+ navbar:
+  left:
+  - text: "about me"
+    href: about.qmd
+  - text: "projects and certifications"
+    href: pc.qmd
+
+format:
+ html:
+  theme: cosmo
