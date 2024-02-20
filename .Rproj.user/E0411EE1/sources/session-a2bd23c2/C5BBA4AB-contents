@@ -2,7 +2,7 @@
 editor: visual
 ---
 
-![](images/my.jpeg){alt="Alt text" width="427"}
+![](images/my.jpeg){alt="Alt text" fig-align="center" width="231"}
 
 ## About me
 
