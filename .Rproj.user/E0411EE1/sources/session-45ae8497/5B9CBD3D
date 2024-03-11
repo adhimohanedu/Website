@@ -3,7 +3,7 @@
     "path": "~/Desktop/STAT/Website/midproject.qmd",
     "project_path": "midproject.qmd",
     "type": "quarto_markdown",
-    "hash": "375535180",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1710175122389.0,
@@ -18,7 +18,7 @@
         "rmdVisualMode": "true",
         "rmdVisualWrapConfigured": "true",
         "docOutlineVisible": "1",
-        "rmdVisualModeLocation": "24:0",
+        "rmdVisualModeLocation": "2:0",
         "rmdVisualCollapsedChunks": ""
     },
     "folds": "",
