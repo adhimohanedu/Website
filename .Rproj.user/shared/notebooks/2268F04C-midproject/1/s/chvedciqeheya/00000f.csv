@@ -1,0 +1,36 @@
+"0","library(ggplot2)"
+"0","library(scales) # for comma formatting"
+"2","
+Attaching package: ‘scales’
+
+"
+"2","The following object is masked from ‘package:purrr’:
+
+    discard
+
+"
+"2","The following object is masked from ‘package:readr’:
+
+    col_factor
+
+"
+"0","# Define the data"
+"0","data <- read.csv(""/Users/adhimohan/Desktop/STAT/Stat dataset pro.csv"", fileEncoding = ""ISO-8859-1"")"
+"0",""
+"0","# Remove commas and convert state_population to numeric"
+"0","data$state_population <- as.numeric(gsub("","", """", data$state_population))"
+"0",""
+"0","# Order data by uninsured rates for stacked bar chart"
+"0","data <- data[order(data$uninsured_rates), ]"
+"0",""
+"0","# Create stacked bar chart"
+"0","ggplot(data, aes(x = state, y = state_population, fill = uninsured_rates)) +"
+"0","  geom_bar(stat = ""identity"") +"
+"0","  scale_fill_gradient(low = ""green"", high = ""red"") +"
+"0","  scale_y_continuous(labels = comma) + # Format y-axis labels with commas"
+"0","  labs(title = ""Uninsured Rates vs. State Population"","
+"0","       x = ""State"","
+"0","       y = ""Population of the state"","
+"0","       fill = ""Uninsured Rates"") +"
+"0","  theme_minimal() +"
+"0","  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))"

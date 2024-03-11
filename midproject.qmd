@@ -1,0 +1,255 @@
+#Group No: 8
+
+Adhi Mohan
+
+Pothula Sai Padma Priya
+
+![](/Users/adhimohan/Documents/screenshots/Screenshot%202024-03-11%20at%201.52.08%20PM.png){fig-align="center"}
+
+Above is the Data Visualization from a Bad Graph representing the US Map with states in polygonal structures with Uninsured rates(percentages). The data visualization does not seem to clearly depict the interpretations from looking at the graph and also the state boundaries and the color coding are similar to each other which makes it difficult to analyze the visualization. Hence, we consider this as a Bad Graph.
+
+The visualisation chosen had the following three main issues:
+
+-   Issue 1: Choice of visualisation style is attempting more of an aesthetic approach rather than a functional approach. The visualisation draws the viewers eye, but the choice to make it eye catching overpowers the meaning.
+
+-   Issue 2: The size of each data point is equal, even though the data is not.
+
+-   Issue 3: The colours used are not ideal for color blindness.
+
+Good Charts convey information. Great charts enable, inform and improve decision making. - Dante Vitagliano. Now, let's reconstruct the above Bad Graph making it much easier to analyze the data in the visualization. Let us start with the Visualization of the US Map from map_data showing the states with accurate boundaries and the Percentage of Uninsured rates.
+
+Here, we use the following libraries - library(tidyverse), library(maps), library(ggrepel), library(dplyr) to get the Map from the map_data and plotting state renamed as region. The maps package contains a lot of outlines of continents, countries and states. The maps package comes with a plotting function, but we will opt to use a ggplot to plot the maps in the maps package. The ggrepel package in R simplifies the process of avoiding overlapped texts in the plots. The dplyr package is used for making data manipulation easier.
+
+```{r}
+library(tidyverse)
+library(maps)
+library(ggrepel)
+library(dplyr)
+
+# Define the data
+data <- read.csv("/Users/adhimohan/Desktop/STAT/Stat dataset pro.csv", fileEncoding = "ISO-8859-1")
+
+# Get US map data with state names
+us_map <- map_data("state")
+
+data <- data %>%
+  rename(region = state)
+
+data <- data %>%
+  mutate(region = tolower(region))
+
+# Merge data with us_map by region
+map_data <- left_join(us_map, data, by = "region")
+map_data$uninsured_rates <- gsub("%", "", map_data$uninsured_rates)
+map_data$uninsured_rates <- as.numeric(map_data$uninsured_rates)
+
+# Aggregate data by state
+symbols_data <- map_data %>%
+  group_by(region) %>%
+  summarize(long = mean(long), lat = mean(lat), 
+            symbols = first(symbols), uninsured_rates = first(uninsured_rates))
+
+# Plot the US map with state symbols and uninsured rates
+ggplot() +
+  geom_polygon(data = us_map, aes(x = long, y = lat, group = group), 
+               color = "#1AFF1A", fill = "#F7EFB4") +  # Add state polygons
+  geom_text(data = symbols_data, aes(x = long, y = lat, label = paste(symbols, "\n", uninsured_rates,"%")), 
+            size = 3, color = "black", fontface = "bold", hjust = 0.5) + 
+  labs(title = "Uninsured Rates Percentage by State in the US")+# Add state symbols and uninsured rates as labels
+  coord_map() +                                  # Use a map projection
+  theme_void()                                   # Remove axis and background
+```
+
+Above is the Map plotted using ggplot where we merge the region in map data using left_join. The US Map shows the data of the Symbols of each state with their accurate boundaries with their percentage of Uninsured rates listed below.
+
+Let's implement the same US Map using the plot_ly function to show more discrete data of each state. The plotly Library makes interactive, quality graphs. The Lowest and Highest Uninsured rates for each state are represented by the color coding ranging from Green as the Lowest to Red as the Highest.
+
+```{r}
+library(tidyverse)
+library(maps)
+library(ggrepel)
+library(dplyr)
+library(plotly)
+
+# Define the data
+data <- read.csv("/Users/adhimohan/Desktop/STAT/Stat dataset pro.csv", fileEncoding = "ISO-8859-1")
+
+# Get US map data with state names
+us_map <- map_data("state")
+
+data <- data %>%
+  rename(region = state)
+
+data <- data %>%
+  mutate(region = tolower(region))
+
+# Merge data with us_map by region
+map_data <- left_join(us_map, data, by = "region")
+map_data$uninsured_rates <- gsub("%", "", map_data$uninsured_rates)
+map_data$uninsured_rates <- as.numeric(map_data$uninsured_rates)
+
+# Order symbols according to state column
+map_data <- map_data %>% 
+  arrange(region)
+
+# Create ggplot2 plot
+gg <- ggplot(data = map_data, aes(x = long, y = lat, group = group, 
+                                  fill = as.numeric(uninsured_rates), text = 
+                                    paste("State: ", region, "<br>Uninsured Rate: ", uninsured_rates,
+                                          "%<br>Symbols: ", symbols))) +
+  geom_polygon(color = "#FFFFFF") +
+  geom_text_repel(data = map_data %>% distinct(region, .keep_all = TRUE),
+                  aes(label = symbols), size = 3, color = "#121D12",
+                  box.padding = unit(0.35, "lines"), # Adjust padding
+                  point.padding = unit(0.5, "lines"), # Adjust padding
+                  segment.color = "#FFFFFF") + # Add segment color
+  scale_fill_gradient(name = "Uninsured Rate (%)", na.value = "#55C555",
+                      low = "#1AFF1A", high = "#DC3220", guide = "legend") +
+  labs(title = "Uninsured Rates Percentage by State in the US", 
+       subtitle = "Darker colors represent higher uninsured rates") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+# Convert ggplot2 plot to plotly
+ggplotly(gg, tooltip = "text")
+```
+
+Above is the Visualization of the US Map done using plot_ly. When the cursor is taken upon the any state, it gives the Name of the state, Symbol and the Uninsured rate. The Red color indicates the state with the highest Uninsured rate and Light Green color indicates the states with the lowest Uninsured rate.
+
+Mapped data: Data visualization of Name of the State vs Percentage of Uninsured population using Bargraph.
+
+```{r}
+library(tidyverse)
+library(maps)
+library(ggrepel)
+library(dplyr)
+library(plotly)
+
+# Define the data
+data <- read.csv("/Users/adhimohan/Desktop/STAT/Stat dataset pro.csv", fileEncoding = "ISO-8859-1")
+
+# Convert uninsured_rates to numeric
+data$uninsured_rates <- as.numeric(gsub("%", "", data$uninsured_rates))
+
+# Get US map data with state names
+us_map <- map_data("state")
+
+data <- data %>%
+  rename(region = state)
+
+data <- data %>%
+  mutate(region = tolower(region))
+
+# Reorder levels of region based on uninsured_rates
+data$region <- factor(data$region, levels = data$region[order(-data$uninsured_rates)])
+
+# Create the plot
+p <- ggplot(data, aes(x = uninsured_rates, y = region)) +
+  geom_col(fill = "#FEFE62", color = "#E66100") +  # Use geom_col instead of geom_bar
+  geom_text(aes(label = paste0(uninsured_rates, "%")), hjust = 1, nudge_x = -0.5,
+            size = 3, color = "#1A85FF") +  # Add % symbol to label
+  labs(title = "Health Insurance Coverage in the US:", 
+       subtitle = "Percentage of Population Without Health Insurance",
+       x = "Percentage of Uninsured Population",
+       y = "Name of the States")
+
+p
+
+```
+
+Above is the graph showing the data of Uninsured population against the states in an Ascending order. Each bar has its Uninsured rate(percentage) displayed at the end of the bar.
+
+Mapped data: State Population vs Uninsured rates using a Bargraph.
+
+```{r}
+library(ggplot2)
+library(scales) # for comma formatting
+
+# Define the data
+data <- read.csv("/Users/adhimohan/Desktop/STAT/Stat dataset pro.csv", fileEncoding = "ISO-8859-1")
+
+# Remove commas and convert state_population to numeric
+data$state_population <- as.numeric(gsub(",", "", data$state_population))
+
+# Order data by uninsured rates for stacked bar chart
+data <- data[order(data$uninsured_rates), ]
+
+# Create stacked bar chart
+ggplot(data, aes(x = state, y = state_population, fill = uninsured_rates)) +
+  geom_bar(stat = "identity") +
+  scale_fill_gradient(low = "green", high = "red") +
+  scale_y_continuous(labels = comma) + # Format y-axis labels with commas
+  labs(title = "Uninsured Rates vs. State Population",
+       x = "State",
+       y = "Population of the state",
+       fill = "Uninsured Rates") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+Above is the graph showing the Population of the state plotted against its Uninsured rates. The Gradient color fill is as per the Uninsured rates. The Legend guide is added to the visualization where the Green represents the Lowest Uninsured rate and Red represents the Highest Uninsured rate. The height of the bar represents the population.
+
+Mapped data: Total US Population vs Total Uninsured Population using a Histogram.
+
+```{r}
+library(ggplot2)
+# Define the data
+data <- read.csv("/Users/adhimohan/Desktop/STAT/Stat dataset pro.csv", fileEncoding = "ISO-8859-1")
+
+# Provided data
+state_population <- data$state_population
+
+uninsured_population <- data$uninsured_population
+# Convert commas to empty string and then to numeric
+state_population <- as.numeric(gsub(",", "", state_population))
+uninsured_population <- as.numeric(gsub(",", "", uninsured_population))
+
+# Calculate the sum of state_population and uninsured_population
+sum_state_population <- sum(state_population)
+sum_uninsured_population <- sum(uninsured_population)
+
+# Create a data frame for histogram
+hist_data <- data.frame(Population = c("Uninsured Population", "Total US Population"),
+                        Sum = c(sum_state_population, sum_uninsured_population))
+
+# Plot histogram
+ggplot(hist_data, aes(x = Population, y = Sum, fill = Population)) +
+  geom_bar(stat = "identity", width = 0.5) + scale_y_continuous(labels = scales::comma) +
+  labs(title = "Summation of State Population vs Uninsured Population",
+       x = "Population Type",
+       y = "Population") +
+  scale_fill_manual(values = c("#1AFF1A", "#4B0092")) +
+  theme_minimal()
+```
+
+Above is a Graph representing the Total US Population compared with the Total Uninsured Population in the US.
+
+Mapped data: Top 10 states with Highest population of Uninsured rates using a Bar Graph.
+
+```{r}
+# Create a data frame with the given data
+state_data <- data.frame(
+  State = c("Texas", "Oklahoma", "Georgia", "Florida", "Mississippi", "Wyoming", "Alaska", "Nevada", "Arizona", "North Carolina"),
+  Uninsured_Percentage = c(18.4, 14.3, 13.4, 13.2, 13, 12.3, 12.2, 11.4, 11.3, 11.3)
+)
+
+# Sort the data frame by Uninsured_Percentage
+state_data <- state_data[order(state_data$Uninsured_Percentage, decreasing = TRUE), ]
+
+# Create the bar plot
+barplot(state_data$Uninsured_Percentage, names.arg = state_data$State, 
+        col = "#1A85FF", ylim = c(0, 20),
+        xlab = "", ylab = "Population Without Health Insurance (%)",
+        main = "Top 10 States With the Highest Percentage of Uninsured Americans",
+        cex.names = 0.8, las = 2, border = NA)
+```
+
+Above is the graph representing the Top 10 states having the Highest Uninsured rates in the US. From which, Texas ranks first for Highest Uninsured Rates.
+
+All the above colors used are Color Blind friendly.
+
+Reference:
+
+\[1\] <https://datacarpentry.org/R-genomics/04-dplyr.html#:~:text=Enter%20dplyr%20.,you%20access%20to%20more%20functions>
+
+\[2\]<https://howmuch.net/articles/health-insurance-coverage-in-the-us>

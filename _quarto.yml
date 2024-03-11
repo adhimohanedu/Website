@@ -5,10 +5,12 @@ website:
  title: "My Portfolio"
  navbar:
   left:
-  - text: "about me"
+  - text: "About me"
     href: about.qmd
-  - text: "projects and certifications"
+  - text: "Projects and Certifications"
     href: pc.qmd
+  - text: "STAT Mid Project"
+    href: midproject.qmd
 
 format:
  html:
